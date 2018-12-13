@@ -32,10 +32,60 @@ private:
     std::hash <key_type> makeHash;
 
     Vector *tab;
-
     int MAX_SIZE;
     int SIZE;
 
+    mapped_type& getValue(const key_type& key) const {
+        int HASH = makeHash(key)%MAX_SIZE;
+
+        if(!tab[HASH].size()) {
+            throw std::out_of_range("");
+        }
+
+        int i = 0;
+        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); it++) {
+            if(tab[HASH][i].first == key) {
+                return tab[HASH][i].second;
+            }
+
+            i++;
+        }
+
+        throw std::out_of_range("");
+    }
+    void Erase(int i, int h) {
+        std::stack<Pair> s;
+        int x = tab[h].size()-1;
+
+        while(i < x) {
+            s.push(tab[h].back());
+            tab[h].pop_back();
+            x--;
+        }
+        tab[h].pop_back();
+        while(s.size()) {
+            tab[h].push_back(s.top());
+            s.pop();
+        }
+    }
+    int findFirstHASH() const {
+        if(SIZE == 0) return 0;
+        int i = 0;
+        while(i < MAX_SIZE && tab[i].size() == 0 ) {
+            i++;
+        }
+        return i;
+    }
+    int findLastHASH() const {
+        if(SIZE == 0) return 0;
+        int i = MAX_SIZE - 1;
+        while(i >= 0 && tab[i].size() == 0) {
+            i--;
+        }
+
+        i++;
+        return i;
+    }
 public:
     HashMap() {
         SIZE = 0;
@@ -124,25 +174,6 @@ public:
         return tab[HASH].back().second;
     }
 
-    mapped_type& getValue(const key_type& key) const {
-        int HASH = makeHash(key)%MAX_SIZE;
-
-        if(!tab[HASH].size()) {
-            throw std::out_of_range("");
-        }
-
-        int i = 0;
-        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); it++) {
-            if(tab[HASH][i].first == key) {
-                return tab[HASH][i].second;
-            }
-
-            i++;
-        }
-
-        throw std::out_of_range("");
-    }
-
     const mapped_type& valueOf(const key_type& key) const {
         return getValue(key);
     }
@@ -193,22 +224,6 @@ public:
         it.pos = i;
 
         return it;
-    }
-
-    void Erase(int i, int h) {
-        std::stack<Pair> s;
-        int x = tab[h].size()-1;
-
-        while(i < x) {
-            s.push(tab[h].back());
-            tab[h].pop_back();
-            x--;
-        }
-        tab[h].pop_back();
-        while(s.size()) {
-            tab[h].push_back(s.top());
-            s.pop();
-        }
     }
 
     void remove(const key_type& key) {
@@ -263,25 +278,6 @@ public:
         return !(*this == other);
     }
 
-    int findFirstHASH() const {
-        if(SIZE == 0) return 0;
-        int i = 0;
-        while(i < MAX_SIZE && tab[i].size() == 0 ) {
-            i++;
-        }
-        return i;
-    }
-
-    int findLastHASH() const {
-        if(SIZE == 0) return 0;
-        int i = MAX_SIZE - 1;
-        while(i >= 0 && tab[i].size() == 0) {
-            i--;
-        }
-
-        i++;
-        return i;
-    }
     iterator begin() {
         Iterator it;
         it.tab = tab;

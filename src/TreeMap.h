@@ -34,35 +34,9 @@ private:
     };
 
     size_type SIZE;
-
     Node *root;
-public:
-    TreeMap() {
-        root = nullptr;
-        SIZE = 0;
-    }
 
-    ~TreeMap() {
-        Clear(root);
-        SIZE = 0;
-    }
-
-    TreeMap(std::initializer_list<value_type> list):TreeMap() {
-        for(auto it = list.begin(); it < list.end(); it++) {
-            this->operator[](it->first) = it->second;
-        }
-    }
-
-    TreeMap(const TreeMap& other):TreeMap() {
-        for(auto it = other.begin(); it != other.end(); it++) {
-            this->operator[](it->first) = it->second;
-        }
-    }
-
-    TreeMap(TreeMap&& other):TreeMap() {
-        *this = std::move(other);
-    }
-
+    ///metody prywatne
     void Clear(Node *A) {
         if(A) {
             Clear(A->left);
@@ -72,40 +46,7 @@ public:
             delete A;
         }
     }
-
-    TreeMap& operator=(const TreeMap& other) {
-        if(other == *this) {
-            return *this;
-        }
-
-        Clear(root);
-        SIZE = 0;
-        root = nullptr;
-
-        for(auto it = other.begin(); it != other.end(); it++) {
-            this->operator[](it->first) = it->second;
-        }
-
-        return *this;
-    }
-
-    TreeMap& operator=(TreeMap&& other) {
-        Clear(root);
-        root = nullptr;
-        SIZE = 0;
-
-        std::swap(root, other.root);
-        std::swap(SIZE, other.SIZE);
-        return *this;
-    }
-
-    bool isEmpty() const {
-        if(SIZE == 0) return true;
-        else return false;
-    }
-
-    //ROTACJE
-
+     //ROTACJE
     void RR(Node *A) {
         Node *B = A->right;
         Node *parent = A->up;
@@ -137,7 +78,6 @@ public:
             B->bf = 1;
         }
     }
-
     void LL(Node *A) {
         Node *B = A->left;
         Node *parent = A->up;
@@ -168,7 +108,6 @@ public:
             B->bf = -1;
         }
     }
-
     void RL(Node *A) {
         Node *B = A->right;
         Node *C = B->left;
@@ -211,7 +150,6 @@ public:
 
         C->bf = 0;
     }
-
     void LR(Node *A) {
         Node *B = A->left;
         Node *C = B->right;
@@ -255,6 +193,236 @@ public:
         }
 
         C->bf = 0;
+    }
+
+    Node* treeSearch(Node *A, key_type key) const {
+        while(A != nullptr && key != A->value->first) {
+            if(key < A->value->first) {
+                A = A->left;
+            } else {
+                A = A->right;
+            }
+        }
+
+        return A;
+    }
+    Node* removeNode(Node *A) {
+        SIZE--;
+        Node *tmp;
+        Node *B;
+        Node *C;
+
+        bool nest;
+
+        if(A->left && A->right) {
+            B = removeNode(treePredecessor(A));
+            nest = false;
+        } else {
+            if(A->left) {
+                B = A->left;
+                A->left = nullptr;
+            } else {
+                B = A->right;
+                A->right = nullptr;
+            }
+            A->bf = 0;
+            nest = true;
+        }
+
+        if(B) {
+            B->up = A->up;
+            B->left = A->left;
+
+            if(B->left) {
+                B->left->up = B;
+            }
+
+            B->right = A->right;
+
+            if(B->right) {
+                B->right->up = B;
+            }
+
+            B->bf = A->bf;
+        }
+
+        if(A->up) {
+            if(A->up->left == A) {
+                A->up->left = B;
+            } else {
+                A->up->right = B;
+            }
+        } else root = B;
+
+        if(nest) {
+            C = B;
+            C = A->up;
+            while(B) {
+                if(!B->bf) {
+                    if(B->left == C) {
+                        B->bf = -1;
+                    } else {
+                        B->bf = 1;
+                    }
+                    break;
+                } else {
+                    if(((B->bf == 1) && (B->left == C)) || ((B->bf == -1) && (B->right == C))) {
+                        B->bf = 0;
+                        C = B;
+                        B = B->up;
+                    } else {
+                        if(B->left == C) {
+                            tmp = B->right;
+                        } else {
+                            tmp = B->left;
+                        }
+                        if(!tmp->bf) {
+                            if(B->bf == 1) {
+                                LL(B);
+                            } else {
+                                RR(B);
+                            }
+                            break;
+                        } else if(B->bf == tmp->bf) {
+                            if(B->bf == 1) {
+                                LL(B);
+                            } else {
+                                RR(B);
+                            }
+
+                            C = tmp;
+                            B = tmp->up;
+                        } else {
+                            if(B->bf == 1) {
+                                LR(B);
+                            } else {
+                                RL(B);
+                            }
+
+                            C = B->up;
+                            B = C->up;
+                        }
+                    }
+                }
+            }
+        }
+        return A;
+    }
+    Node* treeMinimum(Node *A) const {
+        if(A == nullptr) {
+            return A;
+        }
+
+        while(A->left != nullptr) {
+            A = A->left;
+        }
+
+        return A;
+    }
+    Node* treeMaximum(Node *A) const {
+        if(A == nullptr) {
+            return A;
+        }
+
+        while(A->right != nullptr) {
+            A = A->right;
+        }
+
+        return A;
+    }
+    Node* treeSuccessor(Node *A) const {
+        if(A == nullptr) {
+            return A;
+        }
+
+        if(A->right != nullptr) {
+            return treeMinimum(A->right);
+        }
+
+        Node *B = A->up;
+
+        while(B != nullptr && A == B->right) {
+            A = B;
+            B = B->up;
+        }
+
+        return B;
+    }
+    Node* treePredecessor(Node *A) const {
+        if(A == nullptr) {
+            return A;
+        }
+
+        if(A->left != nullptr) {
+            return treeMaximum(A->left);
+        }
+
+        Node *B = A->up;
+
+        while(B != nullptr && A == B->left) {
+            A = B;
+            B = B->up;
+        }
+
+        return B;
+    }
+
+public:
+    TreeMap() {
+        root = nullptr;
+        SIZE = 0;
+    }
+
+    ~TreeMap() {
+        Clear(root);
+        SIZE = 0;
+    }
+
+    TreeMap(std::initializer_list<value_type> list):TreeMap() {
+        for(auto it = list.begin(); it < list.end(); it++) {
+            this->operator[](it->first) = it->second;
+        }
+    }
+
+    TreeMap(const TreeMap& other):TreeMap() {
+        for(auto it = other.begin(); it != other.end(); it++) {
+            this->operator[](it->first) = it->second;
+        }
+    }
+
+    TreeMap(TreeMap&& other):TreeMap() {
+        *this = std::move(other);
+    }
+
+    TreeMap& operator=(const TreeMap& other) {
+        if(other == *this) {
+            return *this;
+        }
+
+        Clear(root);
+        SIZE = 0;
+        root = nullptr;
+
+        for(auto it = other.begin(); it != other.end(); it++) {
+            this->operator[](it->first) = it->second;
+        }
+
+        return *this;
+    }
+
+    TreeMap& operator=(TreeMap&& other) {
+        Clear(root);
+        root = nullptr;
+        SIZE = 0;
+
+        std::swap(root, other.root);
+        std::swap(SIZE, other.SIZE);
+        return *this;
+    }
+
+    bool isEmpty() const {
+        if(SIZE == 0) return true;
+        else return false;
     }
 
     mapped_type& operator[](const key_type& key) {
@@ -360,18 +528,6 @@ public:
         return temp->value->second;
     }
 
-    Node* treeSearch(Node *A, key_type key) const {
-        while(A != nullptr && key != A->value->first) {
-            if(key < A->value->first) {
-                A = A->left;
-            } else {
-                A = A->right;
-            }
-        }
-
-        return A;
-    }
-
     const mapped_type& valueOf(const key_type& key) const {
 
         Node *tmp = root;
@@ -417,109 +573,6 @@ public:
         return it;
     }
 
-    Node* removeNode(Node *A) {
-        SIZE--;
-        Node *tmp;
-        Node *B;
-        Node *C;
-
-        bool nest;
-
-        if(A->left && A->right) {
-            B = removeNode(treePredecessor(A));
-            nest = false;
-        } else {
-            if(A->left) {
-                B = A->left;
-                A->left = nullptr;
-            } else {
-                B = A->right;
-                A->right = nullptr;
-            }
-            A->bf = 0;
-            nest = true;
-        }
-
-        if(B) {
-            B->up = A->up;
-            B->left = A->left;
-
-            if(B->left) {
-                B->left->up = B;
-            }
-
-            B->right = A->right;
-
-            if(B->right) {
-                B->right->up = B;
-            }
-
-            B->bf = A->bf;
-        }
-
-        if(A->up) {
-            if(A->up->left == A) {
-                A->up->left = B;
-            } else {
-                A->up->right = B;
-            }
-        } else root = B;
-
-        if(nest) {
-            C = B;
-            C = A->up;
-            while(B) {
-                if(!B->bf) {
-                    if(B->left == C) {
-                        B->bf = -1;
-                    } else {
-                        B->bf = 1;
-                    }
-                    break;
-                } else {
-                    if(((B->bf == 1) && (B->left == C)) || ((B->bf == -1) && (B->right == C))) {
-                        B->bf = 0;
-                        C = B;
-                        B = B->up;
-                    } else {
-                        if(B->left == C) {
-                            tmp = B->right;
-                        } else {
-                            tmp = B->left;
-                        }
-                        if(!tmp->bf) {
-                            if(B->bf == 1) {
-                                LL(B);
-                            } else {
-                                RR(B);
-                            }
-                            break;
-                        } else if(B->bf == tmp->bf) {
-                            if(B->bf == 1) {
-                                LL(B);
-                            } else {
-                                RR(B);
-                            }
-
-                            C = tmp;
-                            B = tmp->up;
-                        } else {
-                            if(B->bf == 1) {
-                                LR(B);
-                            } else {
-                                RL(B);
-                            }
-
-                            C = B->up;
-                            B = C->up;
-                        }
-                    }
-                }
-            }
-        }
-        return A;
-    }
-
     void remove(const key_type& key) {
         Node *tmp = treeSearch(root, key);
         if(tmp == nullptr) {
@@ -544,68 +597,6 @@ public:
 
     size_type getSize() const {
         return SIZE;
-    }
-
-    Node* treeMinimum(Node *A) const {
-        if(A == nullptr) {
-            return A;
-        }
-
-        while(A->left != nullptr) {
-            A = A->left;
-        }
-
-        return A;
-    }
-
-    Node* treeMaximum(Node *A) const {
-        if(A == nullptr) {
-            return A;
-        }
-
-        while(A->right != nullptr) {
-            A = A->right;
-        }
-
-        return A;
-    }
-
-    Node* treeSuccessor(Node *A) const {
-        if(A == nullptr) {
-            return A;
-        }
-
-        if(A->right != nullptr) {
-            return treeMinimum(A->right);
-        }
-
-        Node *B = A->up;
-
-        while(B != nullptr && A == B->right) {
-            A = B;
-            B = B->up;
-        }
-
-        return B;
-    }
-
-    Node* treePredecessor(Node *A) const {
-        if(A == nullptr) {
-            return A;
-        }
-
-        if(A->left != nullptr) {
-            return treeMaximum(A->left);
-        }
-
-        Node *B = A->up;
-
-        while(B != nullptr && A == B->left) {
-            A = B;
-            B = B->up;
-        }
-
-        return B;
     }
 
     bool operator==(const TreeMap& other) const {
