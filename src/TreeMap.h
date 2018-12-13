@@ -25,11 +25,9 @@ public:
 private:
     struct Node {
         Node *up;
-        Node *left;
-        Node *right;
+        Node *left, *right;
 
         value_type *value;
-
         int bf;
     };
 
@@ -206,8 +204,8 @@ private:
 
         return A;
     }
-    Node* removeNode(Node *A) {
-        SIZE--;
+    Node* removeNode(Node *A) { //tylko wyjmuje wezel z drzewa, usunac (zwolnic pamiec) nalezy recznie po wyjeciu wezla z drzewa
+        --SIZE;
         Node *tmp;
         Node *B;
         Node *C;
@@ -524,7 +522,7 @@ public:
                 }
             }
         }
-        SIZE++;
+        ++SIZE;
         return temp->value->second;
     }
 
@@ -534,7 +532,7 @@ public:
         key_type k = key;
         tmp = treeSearch(tmp, k);
         if(tmp == nullptr) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash valueOf");
         }
         return tmp->value->second;
     }
@@ -544,7 +542,7 @@ public:
 
         tmp = treeSearch(root, key);
         if(tmp == nullptr) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash valueOf");
         }
         return tmp->value->second;
     }
@@ -552,11 +550,7 @@ public:
     const_iterator find(const key_type& key) const {
         ConstIterator it;
         it.tree = this;
-        Node *tmp;
-
-        tmp = treeSearch(root, key);
-
-        it.node = tmp;
+        it.node = treeSearch(root, key);
 
         return it;
     }
@@ -564,11 +558,7 @@ public:
     iterator find(const key_type& key) {
         Iterator it;
         it.tree = this;
-        Node *tmp;
-
-        tmp = treeSearch(root, key);
-
-        it.node = tmp;
+        it.node = treeSearch(root, key);
 
         return it;
     }
@@ -576,22 +566,20 @@ public:
     void remove(const key_type& key) {
         Node *tmp = treeSearch(root, key);
         if(tmp == nullptr) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash remove");
         }
         removeNode(tmp);
-        value_type *val = tmp->value;
-        delete val;
+        delete tmp->value;
         delete tmp;
     }
 
     void remove(const const_iterator& it) {
         Node *tmp = it.node;
         if(tmp == nullptr) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash remove");
         }
         removeNode(tmp);
-        value_type *val = tmp->value;
-        delete val;
+        delete tmp->value;
         delete tmp;
     }
 
@@ -608,12 +596,10 @@ public:
         act.node = treeMinimum(root);
         act.tree = this;
 
-        for(auto it = other.begin(); it != other.end(); ++it) {
+        for(auto it = other.begin(); it != other.end(); ++it, ++act) {
             if(*act != *it) {
                 return false;
             }
-
-            ++act;
         }
 
         return true;
@@ -626,11 +612,7 @@ public:
     iterator begin() {
         Iterator it;
         it.tree = this;
-
-        Node *tmp;
-
-        tmp = treeMinimum(root);
-        it.node = tmp;
+        it.node = treeMinimum(root);
 
         return it;
     }
@@ -646,11 +628,7 @@ public:
     const_iterator cbegin() const {
         ConstIterator it;
         it.tree = this;
-
-        Node *tmp;
-
-        tmp = treeMinimum(root);
-        it.node = tmp;
+        it.node = treeMinimum(root);
 
         return it;
     }
@@ -686,23 +664,21 @@ public:
     explicit ConstIterator() {
     }
 
-    ConstIterator(const ConstIterator& other) {
-        node = other.node;
-        tree = other.tree;
+    ConstIterator(const ConstIterator& other): node(other.node), tree(other.tree) {
     }
 
-    ConstIterator& operator++() {
+    ConstIterator& operator++() { //PRE
         if(node == nullptr) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash operator++ PRE");
         }
 
         node = tree->treeSuccessor(node);
         return *this;
     }
 
-    ConstIterator operator++(int) {
+    ConstIterator operator++(int) { //POST
         if(node == nullptr) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash operator++ POST");
         }
 
         ConstIterator tmp;
@@ -713,9 +689,9 @@ public:
         return tmp;
     }
 
-    ConstIterator& operator--() {
+    ConstIterator& operator--() { //PRE
         if(*this == tree->begin()) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash operator-- PRE");
         }
 
         if(node == nullptr) {
@@ -729,7 +705,7 @@ public:
 
     ConstIterator operator--(int) {
         if(*this == tree->begin()) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash operator-- POST");
         }
 
         ConstIterator tmp;
