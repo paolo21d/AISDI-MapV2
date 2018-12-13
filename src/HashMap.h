@@ -32,26 +32,24 @@ private:
     std::hash <key_type> makeHash;
 
     Vector *tab;
-    int MAX_SIZE;
-    int SIZE;
+    size_type MAX_SIZE;
+    size_type SIZE;
 
     mapped_type& getValue(const key_type& key) const {
         int HASH = makeHash(key)%MAX_SIZE;
 
-        if(!tab[HASH].size()) {
-            throw std::out_of_range("");
+        if(tab[HASH].empty()) {
+            throw std::out_of_range("Hash getValue");
         }
 
         int i = 0;
-        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); it++) {
+        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); ++it, ++i) {
             if(tab[HASH][i].first == key) {
                 return tab[HASH][i].second;
             }
-
-            i++;
         }
 
-        throw std::out_of_range("");
+        throw std::out_of_range("Hash getValue");
     }
     void Erase(int i, int h) {
         std::stack<Pair> s;
@@ -60,7 +58,7 @@ private:
         while(i < x) {
             s.push(tab[h].back());
             tab[h].pop_back();
-            x--;
+            --x;
         }
         tab[h].pop_back();
         while(s.size()) {
@@ -70,21 +68,20 @@ private:
     }
     int findFirstHASH() const {
         if(SIZE == 0) return 0;
-        int i = 0;
-        while(i < MAX_SIZE && tab[i].size() == 0 ) {
-            i++;
+        size_type i = 0;
+        while(i < MAX_SIZE && tab[i].empty()) {
+            ++i;
         }
         return i;
     }
     int findLastHASH() const {
         if(SIZE == 0) return 0;
-        int i = MAX_SIZE - 1;
-        while(i >= 0 && tab[i].size() == 0) {
-            i--;
+        size_type i = MAX_SIZE - 1;
+        while(i >= 0 && tab[i].empty()) {
+            --i;
         }
 
-        i++;
-        return i;
+        return ++i;
     }
 public:
     HashMap() {
@@ -100,13 +97,13 @@ public:
     }
 
     HashMap(std::initializer_list<value_type> list):HashMap() {
-        for(auto it = list.begin(); it != list.end(); it++) {
+        for(auto it = list.begin(); it != list.end(); ++it) {
             this->operator[](it->first) = it->second;
         }
     }
 
     HashMap(const HashMap& other):HashMap() {
-        for(auto it = other.begin(); it != other.end(); it++) {
+        for(auto it = other.begin(); it != other.end(); ++it) {
             this->operator[](it->first) = it->second;
         }
     }
@@ -124,7 +121,7 @@ public:
         delete[] tab;
         tab = new Vector[MAX_SIZE];
 
-        for(auto it = other.begin(); it != other.end(); it++) {
+        for(auto it = other.begin(); it != other.end(); ++it) {
             this->operator[](it->first) = it->second;
         }
 
@@ -156,8 +153,8 @@ public:
 
         HASH = makeHash(key)%MAX_SIZE;
 
-        int i = 0;
-        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); it++) {
+        size_type i = 0;
+        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); ++it, ++i) { 
             if(tab[HASH][i].first == key) {
                 mapped_type test;
                 if(mapped_type{} != test) {
@@ -166,10 +163,9 @@ public:
 
                 return tab[HASH][i].second;
             }
-            i++;
         }
         tab[HASH].push_back(value_type(key, mapped_type{}));
-        SIZE++;
+        ++SIZE;
 
         return tab[HASH].back().second;
     }
@@ -185,15 +181,13 @@ public:
     const_iterator find(const key_type& key) const {
         int HASH = makeHash(key)%MAX_SIZE;
 
-        if(SIZE == 0 || tab[HASH].size() == 0) return end();
+        if(SIZE == 0 || tab[HASH].empty()) return end();
 
-        int i = 0;
-        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); it++) {
-
+        size_type i = 0;
+        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); ++it, ++i) {
             if(tab[HASH][i].first == key) {
                 break;
             }
-            i++;
         }
 
         ConstIterator it;
@@ -207,15 +201,13 @@ public:
     iterator find(const key_type& key) {
         int HASH = makeHash(key)%MAX_SIZE;
 
-        if(SIZE == 0 || tab[HASH].size() == 0) return end();
+        if(SIZE == 0 || tab[HASH].empty()) return end();
 
-        int i = 0;
-        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); it++) {
-
+        size_type i = 0;
+        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); ++it, ++i) {
             if(tab[HASH][i].first == key) {
                 break;
             }
-            i++;
         }
 
         Iterator it;
@@ -229,27 +221,26 @@ public:
     void remove(const key_type& key) {
         int HASH = makeHash(key)%MAX_SIZE;
 
-        if(tab[HASH].size() == 0 || SIZE == 0) {
-            throw std::out_of_range("");
+        if(tab[HASH].empty() || SIZE == 0) {
+            throw std::out_of_range("Hash remove");
         }
 
 
         int i = 0;
-        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); it++) {
+        for(auto it = tab[HASH].begin(); it != tab[HASH].end(); ++it, ++i) {
             if(tab[HASH][i].first == key) {
-                SIZE--;
+                --SIZE;
                 Erase(i, HASH);
                 break;
             }
-            i++;
         }
     }
 
     void remove(const const_iterator& it) {
-        if(tab[it.HASH].size() == 0 || it.pos >= (int)tab[it.HASH].size() || SIZE == 0) {
-            throw std::out_of_range("");
+        if(tab[it.HASH].empty() || it.pos >= (int)tab[it.HASH].size() || SIZE == 0) {
+            throw std::out_of_range("Hash remove");
         }
-        SIZE--;
+        --SIZE;
         Erase(it.pos, it.HASH);
     }
 
@@ -266,9 +257,10 @@ public:
         auto b = other.begin();
 
         while(a != end()) {
-            if(a.HASH != b.HASH || a.pos != b.pos || a.tab[a.HASH][a.pos].first != b.tab[b.HASH][b.pos].first || a.tab[a.HASH][a.pos].second != b.tab[b.HASH][b.pos].second) return false;
-            a++;
-            b++;
+            if(a.HASH != b.HASH || a.pos != b.pos || a.tab[a.HASH][a.pos].first != b.tab[b.HASH][b.pos].first 
+				|| a.tab[a.HASH][a.pos].second != b.tab[b.HASH][b.pos].second) return false;
+            ++a;
+            ++b;
         }
 
         return true;
@@ -332,39 +324,34 @@ public:
     using pointer = const typename HashMap::value_type*;
     using Pair = std::pair<const key_type, mapped_type>;
     using Vector = std::vector<Pair>;
+
     int MAX_SIZE = 999999;
     Vector *tab;
     int HASH;
     int pos;
 
 
-    explicit ConstIterator() {
-        tab = nullptr;
-        HASH = 0;
-        pos = 0;
+    explicit ConstIterator(): tab(nullptr), HASH(0), pos(0) {
     }
 
-    ConstIterator(const ConstIterator& other) {
-        tab = other.tab;
-        HASH = other.HASH;
-        pos = other.pos;
+    ConstIterator(const ConstIterator& other): tab(other.tab), HASH(other.HASH), pos(other.pos) {
     }
 
-    ConstIterator& operator++() {
+    ConstIterator& operator++() { //PRE
         int HASH_b = HASH;
 
-        if(tab[HASH].size() == 0) {
-            throw std::out_of_range("");
+        if(tab[HASH].empty()) {
+            throw std::out_of_range("Hash operator++ PRE");
         }
 
         if((int)tab[HASH].size() - 1 > pos) {
-            pos++;
+            ++pos;
             return *this;
         } else {
-            HASH++;
+            ++HASH;
             pos = 0;
-            while(HASH < MAX_SIZE -1 && tab[HASH].size() == 0) {
-                HASH++;
+            while(HASH < MAX_SIZE -1 && tab[HASH].empty()) {
+                ++HASH;
             }
 
             if(HASH == MAX_SIZE -1) HASH = HASH_b + 1;
@@ -377,21 +364,22 @@ public:
         int HASH_b = HASH;
 
         if(tab[HASH].size() == 0) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash operator++ POST");
         }
 
-        ConstIterator tmp;
+        /*ConstIterator tmp;
         tmp.tab = tab;
         tmp.HASH = HASH;
-        tmp.pos = pos;
+        tmp.pos = pos;*/
+		ConstIterator tmp(*this);
 
         if((int)tab[HASH].size() - 1 > pos) {
-            pos++;
+            ++pos;
         } else {
-            HASH++;
+            ++HASH;
             pos = 0;
-            while(HASH < MAX_SIZE -1 && tab[HASH].size() == 0) {
-                HASH++;
+            while(HASH < MAX_SIZE -1 && tab[HASH].empty()) {
+                ++HASH;
             }
 
             if(HASH == MAX_SIZE -1) HASH = HASH_b + 1;
@@ -400,23 +388,23 @@ public:
         return tmp;
     }
 
-    ConstIterator& operator--() {
-        if(tab[HASH].size() == 0 && HASH == 0) {
-            throw std::out_of_range("");
+    ConstIterator& operator--() { //PRE
+        if(tab[HASH].empty() && HASH == 0) {
+            throw std::out_of_range("Hash operator-- PRE");
         }
 
         if(pos > 0) {
-            pos--;
+            --pos;
             return *this;
         } else {
             HASH--;
 
-            while(HASH >= 0 && tab[HASH].size() == 0) {
-                HASH--;
+            while(HASH >= 0 && tab[HASH].empty()) {
+                --HASH;
             }
 
             if(HASH == -1) {
-                throw std::out_of_range("");
+                throw std::out_of_range("Hash operator-- PRE");
             }
 
             pos = tab[HASH].size()-1;
@@ -425,31 +413,29 @@ public:
         }
     }
 
-    ConstIterator operator--(int) {
+    ConstIterator operator--(int) { //POST
         if(tab[HASH].size() == 0 && HASH == 0) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash operator-- POST");
         }
 
-        ConstIterator tmp;
+        /*ConstIterator tmp;
         tmp.tab = tab;
         tmp.HASH = HASH;
-        tmp.pos = pos;
+        tmp.pos = pos;*/
+		ConstIterator tmp(*this);
 
         if(pos > 0) {
-            pos--;
+            --pos;
         } else {
-            HASH--;
-
-            while(HASH >= 0 && tab[HASH].size() == 0) {
-                HASH--;
+            --HASH;
+            while(HASH >= 0 && tab[HASH].empty()) {
+                --HASH;
             }
 
             if(HASH == -1) {
-                throw std::out_of_range("");
+                throw std::out_of_range("Hash operator-- POST");
             }
-
             pos = tab[HASH].size()-1;
-
         }
 
         return tmp;
@@ -457,7 +443,7 @@ public:
 
     reference operator*() const {
         if(tab[HASH].size() == 0) {
-            throw std::out_of_range("");
+            throw std::out_of_range("Hash operator* - wyluskanie");
         }
 
         return tab[HASH][pos];

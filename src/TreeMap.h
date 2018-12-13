@@ -532,7 +532,7 @@ public:
         key_type k = key;
         tmp = treeSearch(tmp, k);
         if(tmp == nullptr) {
-            throw std::out_of_range("Hash valueOf");
+            throw std::out_of_range("Tree valueOf");
         }
         return tmp->value->second;
     }
@@ -542,7 +542,7 @@ public:
 
         tmp = treeSearch(root, key);
         if(tmp == nullptr) {
-            throw std::out_of_range("Hash valueOf");
+            throw std::out_of_range("Tree valueOf");
         }
         return tmp->value->second;
     }
@@ -566,7 +566,7 @@ public:
     void remove(const key_type& key) {
         Node *tmp = treeSearch(root, key);
         if(tmp == nullptr) {
-            throw std::out_of_range("Hash remove");
+            throw std::out_of_range("Tree remove");
         }
         removeNode(tmp);
         delete tmp->value;
@@ -576,7 +576,7 @@ public:
     void remove(const const_iterator& it) {
         Node *tmp = it.node;
         if(tmp == nullptr) {
-            throw std::out_of_range("Hash remove");
+            throw std::out_of_range("Tree remove");
         }
         removeNode(tmp);
         delete tmp->value;
@@ -669,7 +669,7 @@ public:
 
     ConstIterator& operator++() { //PRE
         if(node == nullptr) {
-            throw std::out_of_range("Hash operator++ PRE");
+            throw std::out_of_range("Tree operator++ PRE");
         }
 
         node = tree->treeSuccessor(node);
@@ -678,7 +678,7 @@ public:
 
     ConstIterator operator++(int) { //POST
         if(node == nullptr) {
-            throw std::out_of_range("Hash operator++ POST");
+            throw std::out_of_range("Tree operator++ POST");
         }
 
         ConstIterator tmp;
@@ -691,7 +691,7 @@ public:
 
     ConstIterator& operator--() { //PRE
         if(*this == tree->begin()) {
-            throw std::out_of_range("Hash operator-- PRE");
+            throw std::out_of_range("Tree operator-- PRE");
         }
 
         if(node == nullptr) {
@@ -705,7 +705,7 @@ public:
 
     ConstIterator operator--(int) {
         if(*this == tree->begin()) {
-            throw std::out_of_range("Hash operator-- POST");
+            throw std::out_of_range("Tree operator-- POST");
         }
 
         ConstIterator tmp;
