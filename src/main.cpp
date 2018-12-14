@@ -26,6 +26,7 @@ void testTree(const std::size_t repeatCount) {
 	}
 	auto done = std::chrono::system_clock::now();
 	std::cout << "TreeMap dodanie elementow: " << (done - start).count() << '\n';
+	//Wyszukiwanie
 	start = std::chrono::system_clock::now();
 	for (std::size_t i = 0; i < repeatCount; ++i) {
 		treeMap.find(i);
@@ -41,6 +42,7 @@ void testHash(const std::size_t repeatCount) {
 	}
 	auto done = std::chrono::system_clock::now();
 	std::cout << "HashMap dodanie elementow: " << (done - start).count() << '\n';
+	//Wyszukiwanie
 	start = std::chrono::system_clock::now();
 	for (std::size_t i = 0; i < repeatCount; ++i) {
 		hashMap.find(i);
@@ -55,7 +57,7 @@ int main(int argc, char** argv)
   const std::size_t repeatCount = argc > 1 ? std::atoll(argv[1]) : 1000000;
   /*for (std::size_t i = 0; i < repeatCount; ++i)
     perfomTest();*/
-
+  std::cout << "Test dla powtorzen: " << repeatCount << std::endl;
 
   testTree(repeatCount);
   testHash(repeatCount);
