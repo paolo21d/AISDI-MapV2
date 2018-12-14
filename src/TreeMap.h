@@ -440,12 +440,12 @@ public:
 
         while(true) {
             if(key == parent->value->first) {
-                mapped_type test;
-                if(test == mapped_type{}) {
+                //mapped_type test;
+                //if(test == mapped_type{}) {
                     delete temp->value;
                     delete temp;
                     return parent->value->second;
-                }
+                //}
 
                 delete parent->value;
                 parent->value = temp->value;

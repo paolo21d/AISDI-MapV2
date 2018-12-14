@@ -156,10 +156,10 @@ public:
         size_type i = 0;
         for(auto it = tab[HASH].begin(); it != tab[HASH].end(); ++it, ++i) { 
             if(tab[HASH][i].first == key) {
-                mapped_type test;
-                if(mapped_type{} != test) {
+                //mapped_type test;
+                //if(mapped_type{} != test) {
                     tab[HASH][i].second = mapped_type{};
-                }
+                //}
 
                 return tab[HASH][i].second;
             }
