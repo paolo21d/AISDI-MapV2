@@ -35,13 +35,13 @@ private:
     Node *root;
 
     ///metody prywatne
-    void Clear(Node *A) {
-        if(A) {
-            Clear(A->left);
-            Clear(A->right);
-            value_type *val = A->value;
+    void Clear(Node *node) {
+        if(node) {
+            Clear(node->left);
+            Clear(node->right);
+            value_type *val = node->value;
             delete val;
-            delete A;
+            delete node;
         }
     }
      //ROTACJE
@@ -193,16 +193,16 @@ private:
         C->bf = 0;
     }
 
-    Node* treeSearch(Node *A, key_type key) const {
-        while(A != nullptr && key != A->value->first) {
-            if(key < A->value->first) {
-                A = A->left;
+    Node* treeSearch(Node *node, key_type key) const {
+        while(node != nullptr && key != node->value->first) {
+            if(key < node->value->first) {
+                node = node->left;
             } else {
-                A = A->right;
+                node = node->right;
             }
         }
 
-        return A;
+        return node;
     }
     Node* removeNode(Node *A) { //tylko wyjmuje wezel z drzewa, usunac (zwolnic pamiec) nalezy recznie po wyjeciu wezla z drzewa
         --SIZE;
@@ -306,59 +306,59 @@ private:
         }
         return A;
     }
-    Node* treeMinimum(Node *A) const {
-        if(A == nullptr) {
-            return A;
+    Node* treeMinimum(Node *node) const {
+        if(node == nullptr) {
+            return node;
         }
 
-        while(A->left != nullptr) {
-            A = A->left;
+        while(node->left != nullptr) {
+            node = node->left;
         }
 
-        return A;
+        return node;
     }
-    Node* treeMaximum(Node *A) const {
-        if(A == nullptr) {
-            return A;
+    Node* treeMaximum(Node *node) const {
+        if(node == nullptr) {
+            return node;
         }
 
-        while(A->right != nullptr) {
-            A = A->right;
+        while(node->right != nullptr) {
+            node = node->right;
         }
 
-        return A;
+        return node;
     }
-    Node* treeSuccessor(Node *A) const {
-        if(A == nullptr) {
-            return A;
+    Node* treeSuccessor(Node *node) const {
+        if(node == nullptr) {
+            return node;
         }
 
-        if(A->right != nullptr) {
-            return treeMinimum(A->right);
+        if(node->right != nullptr) {
+            return treeMinimum(node->right);
         }
 
-        Node *B = A->up;
+        Node *B = node->up;
 
-        while(B != nullptr && A == B->right) {
-            A = B;
+        while(B != nullptr && node == B->right) {
+            node = B;
             B = B->up;
         }
 
         return B;
     }
-    Node* treePredecessor(Node *A) const {
-        if(A == nullptr) {
-            return A;
+    Node* treePredecessor(Node *node) const {
+        if(node == nullptr) {
+            return node;
         }
 
-        if(A->left != nullptr) {
-            return treeMaximum(A->left);
+        if(node->left != nullptr) {
+            return treeMaximum(node->left);
         }
 
-        Node *B = A->up;
+        Node *B = node->up;
 
-        while(B != nullptr && A == B->left) {
-            A = B;
+        while(B != nullptr && node == B->left) {
+            node = B;
             B = B->up;
         }
 
@@ -423,7 +423,7 @@ public:
         else return false;
     }
 
-    mapped_type& operator[](const key_type& key) {
+    mapped_type& operator[](const key_type& key) { //wstawianie
         Node *temp = new Node;
         temp->up = temp->left = temp->right = nullptr;
         temp->bf = 0;
